@@ -103,13 +103,13 @@ test: generate verify ## run all go tests
 e2e: e2e-1.13 ## run end to end tests
 
 e2e-1.13: build ## run end to end tests for kubernetes version 1.13
-	KUBE_OIDC_PROXY_NODE_IMAGE=v1.13.3 go test ./cmd/e2e/. -v
+	KUBE_OIDC_PROXY_NODE_IMAGE=v1.13.3 go test ./pkg/e2e/. -v
 
 e2e-1.12: build ## run end to end tests for kubernetes version 1.12
-	KUBE_OIDC_PROXY_NODE_IMAGE=v1.12.5 go test ./cmd/e2e/. -v
+	KUBE_OIDC_PROXY_NODE_IMAGE=v1.12.5 go test ./pkg/e2e/. -v
 
 e2e-1.11: build ## run end to end tests for kubernetes version 1.11
-	KUBE_OIDC_PROXY_NODE_IMAGE=v1.11.3 go test ./cmd/e2e/. -v
+	KUBE_OIDC_PROXY_NODE_IMAGE=v1.11.3 go test ./pkg/e2e/. -v
 
 build: generate ## build kube-oidc-proxy
 	CGO_ENABLED=0 go build
