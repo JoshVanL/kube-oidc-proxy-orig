@@ -92,13 +92,21 @@ func (p *Proxy) Run(stopCh <-chan struct{}) error {
 	// wait for oidc auther to become ready
 	time.Sleep(10 * time.Second)
 
-	// securely serve using serving config
-	err = p.secureServingInfo.Serve(proxyHandler, time.Second*120, stopCh)
-	if err != nil {
+	if err := p.serve(proxyHandler, stopCh); err != nil {
 		return err
 	}
 
 	klog.Infof("proxy ready")
+
+	return nil
+}
+
+func (p *Proxy) serve(proxyHandler *httputil.ReverseProxy, stopCh <-chan struct{}) error {
+	// securely serve using serving config
+	err := p.secureServingInfo.Serve(proxyHandler, time.Second*60, stopCh)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -135,6 +143,10 @@ func (p *Proxy) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	rt := transport.NewImpersonatingRoundTripper(conf, p.clientTransport)
 
+	req.Header.Del("X-Forwarded-For")
+	req.Header.Del("Content-Length")
+	req.Header.Set("User-Agent", "kubectl/v1.13.4 (linux/amd64) kubernetes/c27b913)")
+	fmt.Printf("header: %s\n", req.Header)
 	// push request through round trippers to the API server
 	return rt.RoundTrip(req)
 }
